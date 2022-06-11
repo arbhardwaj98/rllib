@@ -1,3 +1,5 @@
+#### Forked repo from Sebastian Curi's RLLib: https://github.com/sebascuri/rllib
+
 # rllib-torch (Under Development!)
 
 [![CircleCI](https://img.shields.io/circleci/build/github/sebascuri/rllib/master?label=master%20build%20and%20test&token=25c056fd6b7e322c55dd48fd0c6052b1f8800919)](https://app.circleci.com/pipelines/github/sebascuri/rllib)
