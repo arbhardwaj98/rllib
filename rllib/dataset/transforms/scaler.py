@@ -19,12 +19,14 @@ class Scaler(nn.Module):
 
     def forward(self, array):
         """See `AbstractTransform.__call__'."""
-        return array / self._scale
+        array[..., :self._scale.shape[0]] = array[..., :self._scale.shape[0]] / self._scale
+        return array
 
     @torch.jit.export
     def inverse(self, array):
         """See `AbstractTransform.inverse'."""
-        return array * self._scale
+        array[..., :self._scale.shape[0]] = array[..., :self._scale.shape[0]] * self._scale
+        return array
 
 
 class RewardScaler(AbstractTransform):

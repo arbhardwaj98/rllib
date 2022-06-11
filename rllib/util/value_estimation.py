@@ -305,4 +305,5 @@ def mb_return(
         reduction=reduction,
     )
 
-    return MBValueReturn(value, observation)
+    # Added .squeeze to remove unnecessary dimension of value
+    return MBValueReturn(value.squeeze(), observation)

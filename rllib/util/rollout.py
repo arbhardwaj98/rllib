@@ -130,7 +130,7 @@ def rollout_episode(
     done = False
     time_step = 0
     while not done:
-        action = agent.act(state)
+        action = agent.act(state)  # Scaled action, not in (-1, 1)
         obs, state, done, info = step_env(
             environment=environment,
             state=state,
@@ -147,9 +147,11 @@ def rollout_episode(
         if max_steps <= time_step:
             break
 
+    # TODO: Check this callback
     if callback_frequency and agent.total_episodes % callback_frequency == 0:
         for callback in callbacks:
-            callback(agent, environment, agent.total_episodes)
+            pass
+            # callback(agent, environment, agent.total_episodes)
     agent.end_episode()
 
 
@@ -159,7 +161,7 @@ def rollout_agent(
     num_episodes=1,
     max_steps=1000,
     render=False,
-    print_frequency=0,
+    print_frequency=1,
     callback_frequency=0,
     eval_frequency=0,
     save_milestones=None,

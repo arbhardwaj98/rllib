@@ -68,11 +68,11 @@ class AbstractAgent(object, metaclass=ABCMeta):
         **kwargs,
     ):
         self._name = name
-        self.logger = Logger(
-            self.name if log_dir is None else log_dir,
-            tensorboard=tensorboard,
-            comment=comment,
-        )
+        # self.logger = Logger(
+        #     self.name if log_dir is None else log_dir,
+        #     tensorboard=tensorboard,
+        #     comment=comment,
+        # )
         self.early_stopping_algorithm = EarlyStopping(epsilon=early_stopping_epsilon)
 
         self.counters = {
@@ -371,7 +371,7 @@ class AbstractAgent(object, metaclass=ABCMeta):
 
         params = {}
         for key, value in self.__dict__.items():
-            if isinstance(value, Logger) or key == "pi":
+            if isinstance(value, Logger) or key == "pi" or key == "logger":
                 continue
             elif isinstance(value, nn.Module) or isinstance(value, Optimizer):
                 params[key] = value.state_dict()

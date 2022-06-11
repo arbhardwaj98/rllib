@@ -2,6 +2,7 @@
 
 from abc import ABCMeta
 
+import numpy as np
 import torch.jit
 import torch.nn as nn
 
@@ -318,7 +319,7 @@ class AbstractAlgorithm(nn.Module, metaclass=ABCMeta):
                     self.critic.num_heads, -1
                 )
 
-            td_error = pred_q - target_q  # no gradients for td-error.
+            td_error = torch.abs(pred_q - target_q)  # no gradients for td-error.
             if self.criterion.reduction == "mean":
                 td_error = torch.mean(td_error)
             elif self.criterion.reduction == "sum":

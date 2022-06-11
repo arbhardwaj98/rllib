@@ -86,7 +86,7 @@ class MPOLoss(nn.Module):
         # Maximize the log_likelihood of the weighted log probabilities, subject to the
         # KL divergence between the old_pi and the new_pi to be smaller than epsilon.
 
-        weighted_log_p = torch.sum(weights * action_log_p, dim=0)
+        weighted_log_p = torch.sum(weights.squeeze() * action_log_p, dim=0)
         log_likelihood = weighted_log_p
 
         return Loss(policy_loss=-log_likelihood.mean(), dual_loss=dual_loss)
