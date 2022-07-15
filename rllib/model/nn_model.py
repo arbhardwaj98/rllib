@@ -1,7 +1,7 @@
 """Model implemented by a Neural Network."""
 import torch
 
-from rllib.util.neural_networks.neural_networks import CategoricalNN, HeteroGaussianNN
+from rllib.util.neural_networks.neural_networks import CategoricalNN, HeteroGaussianNN, HomoGaussianNN
 from rllib.util.neural_networks.utilities import one_hot_encode
 
 from .abstract_model import AbstractModel
@@ -22,6 +22,8 @@ class NNModel(AbstractModel):
         Module with which to transform inputs.
     per_coordinate: bool, optional (default = True).
         Flag that indicates if there is an independent model per coordinate.
+    heteroscedastic: bool, optional (default = True).
+        Flag that indicates whether to use a head for variance prediction or use a fixed variance.
     """
 
     def __init__(
@@ -32,6 +34,7 @@ class NNModel(AbstractModel):
         initial_scale=0.5,
         input_transform=None,
         per_coordinate=False,
+        heteroscedastic=True,
         jit_compile=False,
         *args,
         **kwargs,
@@ -73,10 +76,27 @@ class NNModel(AbstractModel):
                     ]
                 )
         elif per_coordinate:
-            if jit_compile:
-                self.nn = torch.nn.ModuleList(
-                    [
-                        torch.jit.script(
+            if heteroscedastic:
+                if jit_compile:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            torch.jit.script(
+                                HeteroGaussianNN(
+                                    in_dim=in_dim,
+                                    out_dim=(1,),
+                                    layers=layers,
+                                    biased_head=biased_head,
+                                    non_linearity=non_linearity,
+                                    squashed_output=False,
+                                    initial_scale=initial_scale,
+                                )
+                                for _ in range(out_dim[0])
+                            )
+                        ]
+                    )
+                else:
+                    self.nn = torch.nn.ModuleList(
+                        [
                             HeteroGaussianNN(
                                 in_dim=in_dim,
                                 out_dim=(1,),
@@ -87,29 +107,63 @@ class NNModel(AbstractModel):
                                 initial_scale=initial_scale,
                             )
                             for _ in range(out_dim[0])
-                        )
-                    ]
-                )
+                        ]
+                    )
             else:
-                self.nn = torch.nn.ModuleList(
-                    [
-                        HeteroGaussianNN(
-                            in_dim=in_dim,
-                            out_dim=(1,),
-                            layers=layers,
-                            biased_head=biased_head,
-                            non_linearity=non_linearity,
-                            squashed_output=False,
-                            initial_scale=initial_scale,
-                        )
-                        for _ in range(out_dim[0])
-                    ]
-                )
+                if jit_compile:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            torch.jit.script(
+                                HomoGaussianNN(
+                                    in_dim=in_dim,
+                                    out_dim=(1,),
+                                    layers=layers,
+                                    biased_head=biased_head,
+                                    non_linearity=non_linearity,
+                                    squashed_output=False,
+                                    initial_scale=initial_scale,
+                                )
+                                for _ in range(out_dim[0])
+                            )
+                        ]
+                    )
+                else:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            HomoGaussianNN(
+                                in_dim=in_dim,
+                                out_dim=(1,),
+                                layers=layers,
+                                biased_head=biased_head,
+                                non_linearity=non_linearity,
+                                squashed_output=False,
+                                initial_scale=initial_scale,
+                            )
+                            for _ in range(out_dim[0])
+                        ]
+                    )
+
         else:
-            if jit_compile:
-                self.nn = torch.nn.ModuleList(
-                    [
-                        torch.jit.script(
+            if heteroscedastic:
+                if jit_compile:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            torch.jit.script(
+                                HeteroGaussianNN(
+                                    in_dim=in_dim,
+                                    out_dim=out_dim,
+                                    layers=layers,
+                                    biased_head=biased_head,
+                                    non_linearity=non_linearity,
+                                    squashed_output=False,
+                                    initial_scale=initial_scale,
+                                )
+                            )
+                        ]
+                    )
+                else:
+                    self.nn = torch.nn.ModuleList(
+                        [
                             HeteroGaussianNN(
                                 in_dim=in_dim,
                                 out_dim=out_dim,
@@ -119,23 +173,39 @@ class NNModel(AbstractModel):
                                 squashed_output=False,
                                 initial_scale=initial_scale,
                             )
-                        )
-                    ]
-                )
+                        ]
+                    )
             else:
-                self.nn = torch.nn.ModuleList(
-                    [
-                        HeteroGaussianNN(
-                            in_dim=in_dim,
-                            out_dim=out_dim,
-                            layers=layers,
-                            biased_head=biased_head,
-                            non_linearity=non_linearity,
-                            squashed_output=False,
-                            initial_scale=initial_scale,
-                        )
-                    ]
-                )
+                if jit_compile:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            torch.jit.script(
+                                HomoGaussianNN(
+                                    in_dim=in_dim,
+                                    out_dim=out_dim,
+                                    layers=layers,
+                                    biased_head=biased_head,
+                                    non_linearity=non_linearity,
+                                    squashed_output=False,
+                                    initial_scale=initial_scale,
+                                )
+                            )
+                        ]
+                    )
+                else:
+                    self.nn = torch.nn.ModuleList(
+                        [
+                            HomoGaussianNN(
+                                in_dim=in_dim,
+                                out_dim=out_dim,
+                                layers=layers,
+                                biased_head=biased_head,
+                                non_linearity=non_linearity,
+                                squashed_output=False,
+                                initial_scale=initial_scale,
+                            )
+                        ]
+                    )
 
     @classmethod
     def default(cls, environment, *args, **kwargs):

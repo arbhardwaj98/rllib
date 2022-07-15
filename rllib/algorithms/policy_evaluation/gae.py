@@ -1,5 +1,5 @@
 """Generalized Advantage Estimation Algorithm."""
-
+import torch
 import torch.nn as nn
 
 from rllib.util.neural_networks.utilities import broadcast_to_tensor
@@ -60,7 +60,7 @@ class GAE(nn.Module):
             td_error = reward
         else:
             next_v = self.value_function(next_state)
-            not_done = broadcast_to_tensor(1.0 - done, target_tensor=next_v)
+            not_done = broadcast_to_tensor(torch.logical_not(done), target_tensor=next_v)
             next_v = next_v * not_done
             td_error = reward + next_v - self.value_function(state)
 
