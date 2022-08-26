@@ -128,7 +128,9 @@ def tensor_to_distribution(args, **kwargs):
     args: Union[Tuple[Tensor], Tensor].
         Tensors with the parameters of a distribution.
     """
-    if not isinstance(args, tuple):
+    if isinstance(args, torch.distributions.Distribution):
+        return args
+    elif not isinstance(args, tuple):
         return Categorical(logits=args)
     elif torch.all(args[1] == 0):
         if kwargs.get("add_noise", False):
