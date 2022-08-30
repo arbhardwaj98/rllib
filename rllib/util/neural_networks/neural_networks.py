@@ -314,6 +314,8 @@ class Ensemble(HeteroGaussianNN):
             scale = torch.reshape(scale, scale.shape[:-1] + (-1, self.num_heads))
 
         if self.prediction_strategy == "moment_matching":
+            # Does not differentiate between epistemic and aleatoric uncertainty.
+            # Refer to: "A Deeper Look into Aleatoric and Epistemic Uncertainty Disentanglement"
             mean = out.mean(-1)
             variance = (scale.square() + out.square()).mean(-1) - mean.square()
             scale = safe_cholesky(torch.diag_embed(variance))
