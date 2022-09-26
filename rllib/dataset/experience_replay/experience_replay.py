@@ -100,6 +100,26 @@ class ExperienceReplay(data.Dataset):
 
         return new
 
+    def add_dataset(self, other):
+        """Appends Experience Replay from another one.
+
+        All observations will be added sequentially, but only that will be copied.
+        Weights will be initialized as if these were new observations.
+        """
+
+        self_transformations = sorted([str(type(transformation)) for transformation in self.transformations])
+        other_transformations = sorted([str(type(transformation)) for transformation in other.transformations])
+        
+        assert self_transformations == other_transformations
+        
+        start_idx = other.ptr
+        for i in range(other.max_len):
+            if other.valid[(start_idx + i) % other.max_len]:
+                observation = other.memory[(start_idx + i) % other.max_len]
+                self.append(observation)
+            else:  # Either empty or belongs to some padding.
+                pass
+
     def split(self, ratio=0.8, *args, **kwargs):
         """Split into two data sets."""
         idx = np.arange(0, len(self))
