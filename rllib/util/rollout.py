@@ -1,5 +1,6 @@
 """Helper functions to conduct a rollout with policies or agents."""
 
+import time
 import torch
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 from tqdm import tqdm
@@ -128,6 +129,7 @@ def rollout_episode(
     agent.set_goal(environment.goal)
     agent.start_episode()
     done = False
+    start_time = time.time()
     time_step = 0
     while not done:
         action = agent.act(state)  # Scaled action, not in (-1, 1)
@@ -156,6 +158,7 @@ def rollout_episode(
             pass
             # callback(agent, environment, agent.total_episodes)
     agent.end_episode()
+    print(f"Episode_time: {time.time() - start_time}")
 
 
 def rollout_agent(
