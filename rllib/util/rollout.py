@@ -121,7 +121,7 @@ def record(environment, agent, path, num_episodes=1, max_steps=1000):
 
 
 def rollout_episode(
-    environment, agent, max_steps, render, callback_frequency, callbacks
+    environment, agent, max_steps, render, callback_frequency, callbacks, use_early_termination=True,
 ):
     """Rollout a full episode."""
     state = environment.reset()
@@ -143,6 +143,9 @@ def rollout_episode(
         # Log info.
         agent.logger.update(**info)
 
+        if not use_early_termination:
+            done = (max_steps <= time_step)
+
         time_step += 1
         if max_steps <= time_step:
             break
@@ -161,6 +164,7 @@ def rollout_agent(
     num_episodes=1,
     max_steps=1000,
     render=False,
+    use_early_termination=True,
     print_frequency=1,
     callback_frequency=0,
     eval_frequency=0,
@@ -201,6 +205,7 @@ def rollout_agent(
             max_steps=max_steps,
             render=render,
             callback_frequency=callback_frequency,
+            use_early_termination=use_early_termination,
             callbacks=callbacks,
         )
 
@@ -218,6 +223,7 @@ def rollout_agent(
                     max_steps=max_steps,
                     render=render,
                     callback_frequency=callback_frequency,
+                    use_early_termination=use_early_termination,
                     callbacks=callbacks,
                 )
     agent.end_interaction()

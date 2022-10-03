@@ -36,7 +36,7 @@ def train_agent(agent, environment, plot_flag=True, *args, **kwargs):
     print(agent)
 
 
-def evaluate_agent(agent, environment, num_episodes, max_steps, render=True):
+def evaluate_agent(agent, environment, num_episodes, max_steps, render=True, use_early_termination=True):
     """Evaluate an agent in an environment.
 
     Parameters
@@ -46,6 +46,7 @@ def evaluate_agent(agent, environment, num_episodes, max_steps, render=True):
     num_episodes: int
     max_steps: int
     render: bool
+    use_early_termination: bool
     """
     with Evaluate(agent):
         rollout_agent(
@@ -54,6 +55,7 @@ def evaluate_agent(agent, environment, num_episodes, max_steps, render=True):
             max_steps=max_steps,
             num_episodes=num_episodes,
             render=render,
+            use_early_termination=use_early_termination
         )
         returns = np.mean(agent.logger.get("eval_return-0")[-num_episodes:])
         print(f"Test Cumulative Rewards: {returns}")
