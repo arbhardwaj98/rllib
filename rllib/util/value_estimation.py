@@ -116,7 +116,7 @@ def discount_sum(rewards, gamma=1.0, reward_transformer=RewardTransformer()):
     else:
         steps = rewards.shape[-2]
         return torch.einsum(
-            "i,ki...->k...",
+            "i,...kij->...kj",
             torch.pow(gamma * torch.ones(steps), torch.arange(steps)),
             rewards,
         )
