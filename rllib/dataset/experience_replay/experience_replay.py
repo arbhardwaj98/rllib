@@ -116,7 +116,7 @@ class ExperienceReplay(data.Dataset):
         for i in range(other.max_len):
             if other.valid[(start_idx + i) % other.max_len]:
                 observation = other.memory[(start_idx + i) % other.max_len]
-                self.append(observation)
+                self.append(observation.clone())
             else:  # Either empty or belongs to some padding.
                 pass
 
@@ -277,8 +277,8 @@ class ExperienceReplay(data.Dataset):
         self.data_count += 1
 
         for transformation in self.transformations:
-            transformation.update(observation)
-            observation = transformation(observation)
+            transformation.update(observation.clone())
+            transformed_observation = transformation(observation.clone())
 
     def sample_batch(self, batch_size):
         """Sample a batch of observations."""
