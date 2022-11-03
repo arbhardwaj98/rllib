@@ -34,7 +34,7 @@ class PusherReward(StateActionReward):
 
         reward_near = -torch.sqrt((dist_to_ball ** 2).sum(-1))
         reward_dist = -torch.sqrt((dist_to_goal ** 2).sum(-1))
-        return reward_dist + 0.5 * reward_near
+        return 1.25 * reward_dist + 0.5 * reward_near
 
 
 class MBPusherEnv(PusherEnv):
