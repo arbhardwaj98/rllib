@@ -45,10 +45,11 @@ class MPCPolicy(AbstractPolicy):
 
     def forward(self, state, **kwargs):
         """Solve the MPC problem."""
-        if self._steps % self.solver_frequency == 0 or self.action_sequence is None:
-            self.action_sequence = self.solver(state)
-        else:
-            self.solver.initialize_actions(state.shape[:-1])
+        with torch.no_grad():
+            if self._steps % self.solver_frequency == 0 or self.action_sequence is None:
+                self.action_sequence = self.solver(state)
+            else:
+                self.solver.initialize_actions(state.shape[:-1])
 
         action = self.action_sequence[self._steps % self.solver_frequency, ..., :]
         self._steps += 1
