@@ -100,7 +100,7 @@ class ExperienceReplay(data.Dataset):
 
         return new
 
-    def add_dataset(self, other):
+    def add_dataset(self, other, start_idx=None, length=None):
         """Appends Experience Replay from another one.
 
         All observations will be added sequentially, but only that will be copied.
@@ -112,8 +112,13 @@ class ExperienceReplay(data.Dataset):
         
         assert self_transformations == other_transformations
         
-        start_idx = other.ptr
-        for i in range(other.max_len):
+        if start_idx is None:
+            start_idx = other.ptr
+        
+        if length is None:
+            length = other.max_len
+            
+        for i in range(length):
             if other.valid[(start_idx + i) % other.max_len]:
                 observation = other.memory[(start_idx + i) % other.max_len]
                 self.append(observation.clone())
