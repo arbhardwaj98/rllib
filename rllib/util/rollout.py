@@ -298,6 +298,7 @@ def rollout_model(
     termination_model=None,
     max_steps=1000,
     memory=None,
+    detach_state=False,
 ):
     """Conduct a rollout of a policy interacting with a model.
 
@@ -319,6 +320,8 @@ def rollout_model(
         Maximum number of steps per episode.
     memory: ExperienceReplay, optional.
         Memory where to store the simulated transitions.
+    detach_state: Bool, optional
+        Detach state from computation graph for policy. Useful for BPTT.
 
     Returns
     -------
@@ -338,7 +341,10 @@ def rollout_model(
     assert max_steps > 0
     for i in range(max_steps):
         if policy is not None:
-            pi = tensor_to_distribution(policy(state), **policy.dist_params)
+            if detach_state:
+                pi = tensor_to_distribution(policy(state.clone().detach()), **policy.dist_params)
+            else:
+                pi = tensor_to_distribution(policy(state), **policy.dist_params)
             action_scale = policy.action_scale
         else:
             assert max_steps == 1

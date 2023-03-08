@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 
+from itertools import chain
+
 from rllib.dataset.datatypes import Observation
 from rllib.dataset.transforms import (
     ActionScaler,
@@ -218,3 +220,9 @@ class TransformedModel(AbstractModel):
     def is_rnn(self):
         """Check if model is an RNN."""
         return self.base_model.is_rnn
+
+    def parameters(self, recurse: bool = True):
+        params = chain(super().parameters(), self.base_model.parameters())
+        for parameter in params:
+            yield parameter
+
