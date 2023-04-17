@@ -135,7 +135,7 @@ def update_parameters(target_module, new_module, tau=0.0):
     """Update the parameters of target_params by those of new_params (softly).
 
     The parameters of target_nn are replaced by:
-        target_params <- (1-tau) * (target_params) + tau * (new_params)
+        target_params <- tau * (target_params) + (1 - tau) * (new_params)
 
     Parameters
     ----------

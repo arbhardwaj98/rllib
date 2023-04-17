@@ -108,7 +108,7 @@ class TransformedModel(AbstractModel):
         scale = self.base_model.scale(obs.state, obs.action)
 
         # Back-transform
-        obs = Observation(
+        obs_new = Observation(
             obs.state,
             obs.action,
             reward=none,
@@ -121,9 +121,12 @@ class TransformedModel(AbstractModel):
             next_state_scale_tril=scale,
         )
 
+        if hasattr(obs, "transform_info"):
+            obs_new.transform_info = obs.transform_info
+
         for transformation in reversed(list(self.transformations)):
-            obs = transformation.inverse(obs)
-        return obs.next_state_scale_tril
+            obs_new = transformation.inverse(obs_new)
+        return obs_new.next_state_scale_tril
 
     def predict(self, state, action, next_state=None):
         """Get next_state distribution."""
@@ -163,7 +166,7 @@ class TransformedModel(AbstractModel):
             state = obs.state
             action = obs.action
 
-        obs = Observation(
+        obs_new = Observation(
             state=state,
             action=action,
             reward=reward[0],
@@ -176,16 +179,19 @@ class TransformedModel(AbstractModel):
             next_state_scale_tril=next_state[1],
             reward_scale_tril=reward[1],
         )
+        
+        if hasattr(obs, "transform_info"):
+            obs_new.transform_info = obs.transform_info
 
         for transformation in reversed(list(self.transformations)):
-            obs = transformation.inverse(obs)
+            obs_new = transformation.inverse(obs_new)
 
         if self.model_kind == "dynamics":
-            return obs.next_state, obs.next_state_scale_tril
+            return obs_new.next_state, obs_new.next_state_scale_tril
         elif self.model_kind == "rewards":
-            return obs.reward, obs.reward_scale_tril
+            return obs_new.reward, obs_new.reward_scale_tril
         elif self.model_kind == "termination":
-            return obs.done
+            return obs_new.done
 
     @torch.jit.export
     def set_head(self, head_ptr: int):
