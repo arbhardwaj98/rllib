@@ -45,6 +45,8 @@ class StateActionReward(AbstractModel, metaclass=ABCMeta):
     def forward(self, state, action, next_state=None):
         """Get reward distribution for state, action, next_state."""
         state, action = to_torch(state), to_torch(action)
+        if next_state is not None:
+            next_state = to_torch(next_state)
 
         reward_ctrl = self.action_reward(action)
         reward_state = self.state_reward(state, next_state)
