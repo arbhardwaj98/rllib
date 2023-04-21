@@ -35,4 +35,7 @@ class LocomotionReward(StateActionReward):
 
     def state_reward(self, state, next_state=None):
         """Get reward that corresponds to the states."""
-        return self.forward_reward_weight * state[..., 0] + self.healthy_reward
+        if next_state is not None:
+            return self.forward_reward_weight * next_state[..., 0] + self.healthy_reward
+        else:
+            return self.forward_reward_weight * state[..., 0] + self.healthy_reward

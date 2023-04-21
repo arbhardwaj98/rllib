@@ -26,10 +26,14 @@ class InvertedDoublePendulumReward(StateActionReward):
 
     def state_reward(self, state, next_state=None):
         """Compute State reward."""
-        x, y = state[..., -2:]
-        dist_penalty = 0.01 * x ** 2 + (y - 2) ** 2
+        if next_state is not None:
+            x, y = next_state[..., -2:]
+            v1, v2 = next_state[..., -4:-2]
+        else:
+            x, y = state[..., -2:]
+            v1, v2 = state[..., -4:-2]
 
-        v1, v2 = state[..., -4:-2]
+        dist_penalty = 0.01 * x ** 2 + (y - 2) ** 2
         vel_penalty = 1e-3 * v1 ** 2 + 5e-3 * v2 ** 2
         return 10 * torch.ones_like(state[..., 0]) - dist_penalty - vel_penalty
 
@@ -60,13 +64,13 @@ class MBInvertedDoublePendulumEnv(InvertedDoublePendulumEnv):
     def step(self, a):
         """See `AbstractEnvironment.step()'."""
         obs = self._get_obs()
-        reward = self._reward_model(obs, a)[0].item()
         if np.all(np.all(obs == [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0])):
             done = False
         else:
             done = self._termination_model(obs, a)
         self.do_simulation(a, self.frame_skip)
         next_obs = self._get_obs()
+        reward = self._reward_model(obs, a, next_obs)[0].item()
 
         return next_obs, reward, done, self._reward_model.info
 

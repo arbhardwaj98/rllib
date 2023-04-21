@@ -36,8 +36,12 @@ class ReacherReward(StateActionReward):
 
     def state_reward(self, state, next_state=None):
         """Compute reward associated with state dynamics."""
-        goal = state[..., -3:]
-        dist_to_target = self.get_ee_position(state) - goal
+        if next_state is not None:
+            goal = next_state[..., -3:]
+            dist_to_target = self.get_ee_position(next_state) - goal
+        else:
+            goal = state[..., -3:]
+            dist_to_target = self.get_ee_position(state) - goal
         if self.sparse:
             return self.state_sparse_reward(dist_to_target)
         else:
@@ -123,9 +127,9 @@ try:
             """See `AbstractEnvironment.step()'."""
             action = action * self.action_magnitude
             obs = self._get_obs()
-            reward = self._reward_model(obs, action)[0].item()
             self.do_simulation(action, self.frame_skip)
             next_obs = self._get_obs()
+            reward = self._reward_model(obs, action, next_obs)[0].item()
             done = False
             return next_obs, reward, done, self._reward_model.info
 

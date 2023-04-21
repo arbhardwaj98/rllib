@@ -52,9 +52,9 @@ class MBInvertedPendulumEnv(InvertedPendulumEnv):
     def step(self, a):
         """See `AbstractEnvironment.step()'."""
         obs = self._get_obs()
-        reward = self._reward_model(obs, a)[0].item()
         done = self._termination_model(obs, a)
         self.do_simulation(a, self.frame_skip)
         next_obs = self._get_obs()
+        reward = self._reward_model(obs, a, next_obs)[0].item()
 
         return next_obs, reward, done, self._reward_model.info

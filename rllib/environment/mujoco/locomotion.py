@@ -94,7 +94,6 @@ class LocomotionEnv(object):
     def step(self, action):
         """See gym.Env.step()."""
         obs = self._get_obs()
-        reward = self._reward_model(obs, action)[0].item()
         done = self._termination_model(obs, action)
 
         if isinstance(self, HumanoidEnv):
@@ -104,6 +103,9 @@ class LocomotionEnv(object):
         self.do_simulation(action, self.frame_skip)
 
         next_obs = self._get_obs()
+
+        reward = self._reward_model(obs, action, next_obs)[0].item()
+
         info = self._reward_model.info
         info.update(x_position=self.prev_pos[0], x_velocity=obs[0])
         if self.dim_pos == 2:

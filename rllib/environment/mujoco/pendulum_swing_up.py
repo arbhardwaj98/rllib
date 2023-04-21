@@ -36,7 +36,10 @@ class PendulumReward(StateActionReward):
 
     def state_reward(self, state, next_state=None):
         """Compute reward associated with state dynamics."""
-        theta, omega = torch.atan2(state[..., 1], state[..., 0]), state[..., 2]
+        if next_state is not None:
+            theta, omega = torch.atan2(next_state[..., 1], next_state[..., 0]), next_state[..., 2]
+        else:
+            theta, omega = torch.atan2(state[..., 1], state[..., 0]), state[..., 2]
         if self.sparse:
             return self.state_sparse_reward(theta, omega)
         else:
@@ -69,7 +72,7 @@ class PendulumSwingUpEnv(PendulumEnv):
 
     def step(self, u):
         """Override step method of pendulum env."""
-        reward = self._reward_model(self._get_obs(), u)[0].item()
+        obs = self._get_obs()
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
         self.last_u = u  # for rendering
@@ -85,6 +88,7 @@ class PendulumSwingUpEnv(PendulumEnv):
 
         self.state = np.array([new_theta, new_omega])
         next_obs = self._get_obs()
+        reward = self._reward_model(obs, u, next_obs)[0].item()
         return next_obs, reward, False, self._reward_model.info
 
     def reward_model(self):

@@ -31,7 +31,10 @@ class CartPoleReward(StateActionReward):
 
     def state_reward(self, state, next_state=None):
         """Get reward that corresponds to the states."""
-        end_effector = self._get_ee_pos(state[..., 0], state[..., 1])
+        if next_state is not None:
+            end_effector = self._get_ee_pos(next_state[..., 0], next_state[..., 1])
+        else:
+            end_effector = self._get_ee_pos(state[..., 0], state[..., 1])
         reward_state = torch.exp(
             -torch.square(end_effector).sum(-1) / (self.pendulum_length ** 2)
         )
@@ -70,9 +73,9 @@ try:
         def step(self, action):
             """See `AbstractEnvironment.step()'."""
             ob = self._get_obs()
-            reward = self._reward_model(ob, action)[0].item()
             self.do_simulation(action, self.frame_skip)
             next_obs = self._get_obs()
+            reward = self._reward_model(ob, action, next_obs)[0].item()
             done = False
 
             return next_obs, reward, done, self._reward_model.info
