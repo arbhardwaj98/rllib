@@ -125,6 +125,10 @@ def _mse(prediction, target):
     return ((prediction[0] - target) ** 2).mean(-1).mean()
 
 
+def _nmae(prediction, target):
+    return (torch.abs((prediction[0] - target) / target)).mean(-1).mean()
+
+
 def model_loss(model, observation, dynamical_model=None):
     """Get model loss."""
     target = get_target(model, observation)
@@ -190,6 +194,21 @@ def get_model_validation_score(model, observation, dynamical_model=None):
     sharpness_ = _sharpness(prediction).item()
     calibration = _calibration_score(prediction, target).item()
     return loss, mse, sharpness_, calibration
+
+
+def get_norm_model_validation_score(model, observation, dynamical_model=None):
+    """Get validation score."""
+    target = get_target(model, observation)
+
+    model.reset()
+    prediction = get_prediction(model, observation, dynamical_model=dynamical_model)
+
+    loss = _loss(prediction, target).mean().item()
+    mse = _mse(prediction, target).item()
+    nmae = _nmae(prediction, target).item()
+    sharpness_ = _sharpness(prediction).item()
+    calibration = _calibration_score(prediction, target).item()
+    return loss, mse, nmae, sharpness_, calibration
 
 
 class Evaluate(object):
