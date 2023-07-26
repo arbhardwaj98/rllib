@@ -24,6 +24,10 @@ class NNModel(AbstractModel):
         Flag that indicates if there is an independent model per coordinate.
     heteroscedastic: bool, optional (default = True).
         Flag that indicates whether to use a head for variance prediction or use a fixed variance.
+    in_dim: int, optional (default=None).
+        Input dimension of the model if different from the environment's state-action space.
+    out_dim: int, optional (default=None).
+        Output dimension of the model if different from the environment's state space.
     """
 
     def __init__(
@@ -36,14 +40,16 @@ class NNModel(AbstractModel):
         per_coordinate=False,
         heteroscedastic=True,
         jit_compile=False,
+        in_dim=None,
+        out_dim=None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.input_transform = input_transform
 
-        out_dim = self._get_out_dim()
-        in_dim = self._get_in_dim()
+        out_dim = self._get_out_dim() if out_dim is None else out_dim
+        in_dim = self._get_in_dim() if in_dim is None else in_dim
         assert len(out_dim) == 1, "No images allowed."
 
         if (
