@@ -286,7 +286,7 @@ def sample_mean_and_cov(sample, diag=False):
     return mean, covariance
 
 
-def safe_cholesky(covariance_matrix, jitter=1e-6):
+def safe_cholesky(covariance_matrix, jitter=1e-12):
     """Perform a safe cholesky decomposition of the covariance matrix.
 
     If cholesky decomposition raises Runtime error, it adds jitter to the covariance
