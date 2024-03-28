@@ -195,7 +195,7 @@ class ExperienceReplay(data.Dataset):
 
     def _get_consecutive_observations(self, start_idx, num_memory_steps):
         if num_memory_steps == 0 and not (
-            isinstance(start_idx, int) or isinstance(start_idx, np.int)
+            isinstance(start_idx, int) or isinstance(start_idx, int)
         ):
             observation = stack_list_of_tuples(self.memory[start_idx])
             return Observation(*map(lambda x: x.unsqueeze(1), observation))
