@@ -202,6 +202,7 @@ def rollout_agent(
     save_milestones = list() if save_milestones is None else save_milestones
     callbacks = list() if callbacks is None else callbacks
     for episode in tqdm(range(num_episodes)):
+        print(f"Rolling out episode {episode} out of {num_episodes}")
         rollout_episode(
             environment=environment,
             agent=agent,
